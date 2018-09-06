@@ -17,9 +17,9 @@ import sys
 import json
 import time
 import threading
-import pprint
 import random
 import hashlib
+
 
 #######################################################################################################################
 # TCPServer Class #####################################################################################################
@@ -29,6 +29,9 @@ import hashlib
 # Implements a node that is able to connect to other nodes and is able to accept connections from other nodes.
 # After instantiation, the node creates a TCP/IP server with the given port.
 #
+from xdg import Exceptions
+
+
 class Node(threading.Thread):
 
     # Python class constructor
@@ -39,21 +42,21 @@ class Node(threading.Thread):
         self.terminate_flag = threading.Event()
 
         # Server details, host (or ip) to bind to and the port
-        self.host           = host
-        self.port           = port
+        self.host = host
+        self.port = port
 
         # Events are send back to the given callback
-        self.callback       = callback
+        self.callback = callback
 
         # Nodes that have established a connection with this node
-        self.nodesIn        = [] # Nodes that are connect with us N->(US)->N
+        self.nodesIn = []  # Nodes that are connect with us N->(US)->N
 
         # Nodes that this nodes is connected to
-        self.nodesOut       = [] # Nodes that we are connected to (US)->N
+        self.nodesOut = []  # Nodes that we are connected to (US)->N
 
         # Create a unique ID for each node.
         id = hashlib.md5()
-        t = self.host + str(self.port) + str(random.randint(1, 99999999));
+        t = self.host + str(self.port) + str(random.randint(1, 99999999))
         id.update(t.encode('ascii'))
         self.id = id.hexdigest()
 
@@ -95,7 +98,10 @@ class Node(threading.Thread):
     # Send a message to all the nodes that are connected with this node.
     # data is a python variabele which is converted to JSON that is send over to the other node.
     # exclude list gives all the nodes to which this data should not be sent.
-    def send2nodes(self, data, exclude = []):
+    def send2nodes(self, data, exclude=None):
+        if exclude is None:
+            exclude = []
+
         for n in self.nodesIn:
             if n in exclude:
                 print("TcpServer.send2nodes: Excluding node in sending the message")
@@ -142,7 +148,7 @@ class Node(threading.Thread):
         if node in self.nodesOut:
             node.stop()
             node.send({"type": "message", "message": "Terminate connection"})
-            node.join() # When this is here, the application is waiting and waiting
+            node.join()  # When this is here, the application is waiting and waiting
             del self.nodesOut[self.nodesOut.index(node)]
 
     # When this function is executed, the thread will stop!
@@ -152,7 +158,7 @@ class Node(threading.Thread):
     # This method is required for the Thead function and is called when it is started.
     # This function implements the main loop of this thread.
     def run(self):
-        while not self.terminate_flag.is_set(): # Check whether the thread needs to be closed
+        while not self.terminate_flag.is_set():  # Check whether the thread needs to be closed
             try:
                 print("Wait for connection")
                 connection, client_address = self.sock.accept()
@@ -188,6 +194,7 @@ class Node(threading.Thread):
         self.sock.close()
         print("TcpServer stopped")
 
+
 #######################################################################################################################
 # NodeConnection Class ###############################################################################################
 #######################################################################################################################
@@ -203,12 +210,12 @@ class NodeConnection(threading.Thread):
     def __init__(self, nodeServer, sock, clientAddress, callback):
         super(NodeConnection, self).__init__()
 
-        self.host           = clientAddress[0]
-        self.port           = clientAddress[1]
-        self.nodeServer     = nodeServer;
-        self.sock           = sock
-        self.clientAddress  = clientAddress
-        self.callback       = callback
+        self.host = clientAddress[0]
+        self.port = clientAddress[1]
+        self.nodeServer = nodeServer;
+        self.sock = sock
+        self.clientAddress = clientAddress
+        self.callback = callback
         self.terminate_flag = threading.Event()
 
         id = hashlib.md5()
@@ -238,7 +245,7 @@ class NodeConnection(threading.Thread):
         # Timeout, so the socket can be closed when it is dead!
         self.sock.settimeout(10.0)
 
-        while not self.terminate_flag.is_set(): # Check whether the thread needs to be closed
+        while not self.terminate_flag.is_set():  # Check whether the thread needs to be closed
             line = ""
             try:
                 line = self.sock.recv(4096)
