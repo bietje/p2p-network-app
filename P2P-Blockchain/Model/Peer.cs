@@ -52,7 +52,11 @@ namespace P2P_Blockchain.Model
             StreamWriter writer = new StreamWriter(stream);
             writer.WriteLine(peer);
             writer.Flush();
-        }        
+        }
 
+        public void Close()
+        {
+            client.Close();
+        }
     }
 }
