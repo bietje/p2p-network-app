@@ -8,10 +8,16 @@ namespace P2P_Blockchain
     {
         private static void Main(string[] args)
         {
+			Server s;
+
             Console.WriteLine("Please enter your command: ");
             Console.WriteLine("1 : Node discovery ");
             Console.WriteLine("2 : Send transaction ");
             Console.WriteLine("3 : Send Block");
+
+			s = new Server();
+			s.Start();
+
             switch (Console.ReadLine())
             {
                 case ("1"):
