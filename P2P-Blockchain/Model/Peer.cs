@@ -26,7 +26,7 @@ namespace P2P_Blockchain.Model
             Console.WriteLine($"Connected to {Name} on {IPadress}");
         }
 
-        public void SendTransactionAsync(Transaction t)
+        public void SendTransaction(Transaction t)
         {
 
             var transaction = JsonConvert.SerializeObject(t);            
