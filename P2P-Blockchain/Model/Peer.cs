@@ -23,7 +23,7 @@ namespace P2P_Blockchain.Model
             this.IPadress = IPadress;
             client = new TcpClient();
             client.Connect(IPadress, NetworkController.Port);
-            Console.WriteLine($"Connected to {Name} on {IPadress}");
+            Console.WriteLine($"Client Connected to {Name} on {IPadress}");
         }
 
         public void SendTransaction(Transaction t)
@@ -50,7 +50,7 @@ namespace P2P_Blockchain.Model
             var peer = JsonConvert.SerializeObject(p);
             NetworkStream stream = client.GetStream();
             StreamWriter writer = new StreamWriter(stream);
-            writer.WriteLine(peer);
+            writer.WriteLine("Client"+peer);
             writer.Flush();
         }
 

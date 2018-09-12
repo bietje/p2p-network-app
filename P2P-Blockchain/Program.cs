@@ -17,9 +17,13 @@ namespace P2P_Blockchain
             Console.WriteLine("1 : Node discovery ");
             Console.WriteLine("2 : Send transaction ");
             Console.WriteLine("3 : Send Block");
-
-			s = new Server();
+           
+            s = new Server();
 			s.Start();
+            NetworkController.SelfName = "Sascha";
+
+            NetworkController.AddPeer("test2", "145.49.23.96");
+            NetworkController.AddTransAction("", "", 5);
 
             switch (Console.ReadLine())
             {
@@ -60,4 +64,4 @@ namespace P2P_Blockchain
 
 
 }
-}
+

@@ -55,18 +55,21 @@ namespace P2P_Blockchain
 				StreamWriter writer;
 
 				this.client = client as TcpClient;
-				if(client == null) {
+				if(this.client == null) {
 					Console.WriteLine("Invalid client...");
 				}
 
-				while(true) {
+			    var addres = ((IPEndPoint) this.client.Client.RemoteEndPoint).Address.ToString();
+
+
+                while (true) {
 					reader = new StreamReader(this.client.GetStream(), Encoding.ASCII);
 					writer = new StreamWriter(this.client.GetStream(), Encoding.ASCII);
 
 					char[] bytes = new char[2048];
 					var num =await reader.ReadAsync(bytes, 0, bytes.Length);
 					string received = new string(bytes);
-					Console.WriteLine(received);
+					Console.WriteLine("Server " + received);
 				}
 			}
 		}

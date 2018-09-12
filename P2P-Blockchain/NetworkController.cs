@@ -7,15 +7,15 @@ using P2P_Blockchain.Model;
 
 namespace P2P_Blockchain
 {
-	public class NetworkController
+	public static class NetworkController
     {
-		public static SortedSet<Peer> peers;
+		public static SortedSet<Peer> peers = new SortedSet<Peer>();
 		public static  int Port = 1337;
         public static string SelfName = "";
-        public SortedSet<Block> Blocks { get; set; }
-        public SortedSet<Transaction> Transactions { get; set; }
+        public static SortedSet<Block> Blocks { get; set; } = new SortedSet<Block>();
+        public static SortedSet<Transaction> Transactions { get; set; } = new SortedSet<Transaction>();
 
-        public void AddPeer(string name, string IPadress)
+        public static void AddPeer(string name, string IPadress)
         {
             var peer = new Peer(name, IPadress, SelfName);
             if (peers.Add(peer))
@@ -27,7 +27,7 @@ namespace P2P_Blockchain
             }
         }
 
-        public void ForwardPeer(Peer peer)
+        public static void ForwardPeer(Peer peer)
         {
             peers.Add(peer);
             foreach (var p in peers)
@@ -36,7 +36,7 @@ namespace P2P_Blockchain
             }
         }
 
-        public void AddBlock(int id, string nonce, string data, string previous)
+        public static void AddBlock(int id, string nonce, string data, string previous)
         {
             var block = new Block(id, nonce, data, previous);            
             if (Blocks.Add(block))
@@ -48,7 +48,7 @@ namespace P2P_Blockchain
             }
         }
 
-        public void ForwardBlock(Block block)
+        public static void ForwardBlock(Block block)
         {
             Blocks.Add(block);            
             foreach (var p in peers)
@@ -58,7 +58,7 @@ namespace P2P_Blockchain
         }
 
 
-        public void AddTransAction(string from, string to, decimal amount)
+        public static void AddTransAction(string from, string to, decimal amount)
         {
             var transaction = new Transaction(from, to, amount);
             if (Transactions.Add(transaction))
@@ -70,7 +70,7 @@ namespace P2P_Blockchain
             }
         }
 
-        public void ForwardTransaction(Transaction transaction)
+        public static void ForwardTransaction(Transaction transaction)
         {
             Transactions.Add(transaction);
             foreach (var p in peers)
@@ -79,12 +79,12 @@ namespace P2P_Blockchain
             }
         }
 
-        public void RemovePeer(string name)
+        public static void RemovePeer(string name)
         {            
 
         }
 
-        public void Close()
+        public static void Close()
         {
             foreach (var p in peers)
             {
