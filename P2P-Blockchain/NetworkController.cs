@@ -27,6 +27,15 @@ namespace P2P_Blockchain
             }
         }
 
+        public void ForwardPeer(Peer peer)
+        {
+            peers.Add(peer);
+            foreach (var p in peers)
+            {
+                p.SendPeer(peer);
+            }
+        }
+
         public void AddBlock(int id, string nonce, string data, string previous)
         {
             var block = new Block(id, nonce, data, previous);            
@@ -38,6 +47,16 @@ namespace P2P_Blockchain
                 }
             }
         }
+
+        public void ForwardBlock(Block block)
+        {
+            Blocks.Add(block);            
+            foreach (var p in peers)
+            {
+                p.SendBlock(block);
+            }
+        }
+
 
         public void AddTransAction(string from, string to, decimal amount)
         {
@@ -51,8 +70,26 @@ namespace P2P_Blockchain
             }
         }
 
+        public void ForwardTransaction(Transaction transaction)
+        {
+            Transactions.Add(transaction);
+            foreach (var p in peers)
+            {
+                p.SendTransaction(transaction);
+            }
+        }
+
         public void RemovePeer(string name)
         {            
+
+        }
+
+        public void Close()
+        {
+            foreach (var p in peers)
+            {
+                p.SendPeer(p);
+            }
         }
 
     }
