@@ -4,6 +4,7 @@ using System.Text;
 
 namespace P2P_Blockchain.Model
 {
+    [Serializable]
     public class Block
     {
         public int id { get; set; }

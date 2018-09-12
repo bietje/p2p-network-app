@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using P2P_Blockchain.Model;
 
 namespace P2P_Blockchain
 {
@@ -23,5 +25,7 @@ namespace P2P_Blockchain
                     break;
             }
         }
+
+        
     }
 }
