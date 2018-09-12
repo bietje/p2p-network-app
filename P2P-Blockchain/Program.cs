@@ -2,11 +2,26 @@
 
 namespace P2P_Blockchain
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Console.WriteLine("Please enter your command: ");
+            Console.WriteLine("1 : Node discovery ");
+            Console.WriteLine("2 : Send transaction ");
+            Console.WriteLine("3 : Send Block");
+            switch (Console.ReadLine())
+            {
+                case ("1"):
+                    break;
+                case ("2"):
+                    break;
+                case ("3"):
+                    break;
+                default:
+                    Console.WriteLine("Invalid input detected");
+                    break;
+            }
         }
     }
 }
