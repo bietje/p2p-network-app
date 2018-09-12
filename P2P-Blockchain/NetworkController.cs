@@ -9,24 +9,25 @@ namespace P2P_Blockchain
 {
 	public class NetworkController
     {
-		private readonly SortedSet<Peer> peers;
+		public static SortedSet<Peer> peers;
 		public static  int Port = 1337;
+        public static string selfName = "";
 
-		public void AddPeer(Peer p)
-		{
-			this.peers.Add(p);
-		}
+        public void AddPeer(string name, string IPadress)
+        {
+            var peer = new Peer(name, IPadress, selfName);
+            if (peers.Add(peer))
+            {
+                foreach (var p in peers)
+                {
+                    p.SendPeer(peer);   
+                }
+            }
+        }
 
-		public void RemovePeerByIp(string ip)
-		{
-			foreach(var p in peers) {
-				if(ip == p.IPAdress) {
-					peers.Remove(p);
-					return;
-				}
-			}
-		}
-
+        public void RemovePeer(string name)
+        {            
+        }
 
     }
 }

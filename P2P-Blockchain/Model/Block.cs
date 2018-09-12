@@ -12,5 +12,6 @@ namespace P2P_Blockchain.Model
         public string data { get; set; }
         public string hash { get; set; }
         public string previous { get; set; }
+        public string Username { get; set; }
     }
 }
