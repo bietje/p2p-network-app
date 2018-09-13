@@ -25,7 +25,7 @@ namespace P2P_Blockchain
 
         public static void ForwardPeer(Peer peer)
         {
-            if (peers.Add(peer))
+            if (peers.Add(peer) && peer.IPadress != SelfIp)
             {
                 foreach (Peer p in peers)
                 {
