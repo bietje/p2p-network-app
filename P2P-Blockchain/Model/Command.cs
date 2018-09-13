@@ -9,5 +9,11 @@ namespace P2P_Blockchain.Model
     {
 		public CommandId Cmd;
 		public string Data;
+
+        public Command(CommandId cmd, string data)
+        {
+            Cmd = cmd;
+            Data = data;
+        }
     }
 }
