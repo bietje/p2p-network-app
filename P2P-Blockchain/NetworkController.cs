@@ -16,10 +16,10 @@ namespace P2P_Blockchain
         {
             Peer peer = new Peer(name, IPadress);
 
-            SortedSet<Peer> tempPeer = NetworkController.peers;
+            SortedSet<Peer> tempPeer = new SortedSet<Peer>(NetworkController.peers);
             foreach (Peer p in peers)
             {
-                SortedSet<Peer> temptemp = p.SendPeer(peer);
+                SortedSet<Peer> temptemp = new SortedSet<Peer>(p.SendPeer(peer));
                 foreach (Peer pe in temptemp)
                 {
                     if (pe.IPadress != NetworkController.SelfIp)
@@ -30,18 +30,17 @@ namespace P2P_Blockchain
                 }
             }
 
-            if (!tempPeer.Equals(NetworkController.peers))
+            foreach (Peer pee in tempPeer)
             {
-                foreach (Peer pee in tempPeer)
+                if (pee.IPadress != NetworkController.SelfIp && !NetworkController.peers.Contains(pee))
                 {
-                    if (pee.IPadress != NetworkController.SelfIp)
-                    {
-                        NetworkController.peers.Add(pee);
-                    }
-
+                    NetworkController.peers.Add(pee);
+                    AddPeer(name, IPadress); //SHOULD THIS BE HERE?
                 }
-                AddPeer(name, IPadress);
+
             }
+
+
         }
 
         //public static void ForwardPeer(Peer peer)
