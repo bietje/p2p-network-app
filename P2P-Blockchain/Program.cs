@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 using P2P_Blockchain.Model;
@@ -24,9 +26,9 @@ namespace P2P_Blockchain
             Console.Write("Please enter your name");
             var self = Console.ReadLine();
             SetConsoleCtrlHandler(handler, true);
-
+            var peer = new Peer(name, ip, self);
             NetworkController.SelfName = self;
-            NetworkController.peers.Add(new Peer(name, ip, self));
+            NetworkController.peers.Add(peer);
 
 
             while (true)
@@ -44,6 +46,7 @@ namespace P2P_Blockchain
                 {
                     case ("1"):
                         //TODO SEND GET NODE
+                        NetworkController.AddPeer(NetworkController.SelfName, GetLocalIPAddress());
                         break;
                     case ("2"):
                         Console.WriteLine("Please enter with whom you made the transaction;");
@@ -62,6 +65,19 @@ namespace P2P_Blockchain
                         break;
                 }
             }
+        }
+
+        public static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("No network adapters with an IPv4 address in the system!");
         }
 
         static bool ConsoleEventCallback(int eventType)

@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using P2P_Blockchain.Enums;
 
 namespace P2P_Blockchain.Model
 {
@@ -29,28 +30,36 @@ namespace P2P_Blockchain.Model
         public void SendTransaction(Transaction t)
         {
 
-            var transaction = JsonConvert.SerializeObject(t);            
+            var transaction = JsonConvert.SerializeObject(t);
+            var command = new Command(CommandId.Block, transaction);
+            var c = JsonConvert.SerializeObject(command);
             NetworkStream stream = client.GetStream();
             StreamWriter writer = new StreamWriter(stream);
-            writer.WriteLine(transaction);
+            writer.WriteLine(c);
             writer.Flush();
         }
 
         public void SendBlock(Block b)
-        {
+        {            
             var block = JsonConvert.SerializeObject(b);
+            var command = new Command(CommandId.Block, block);
+            var c = JsonConvert.SerializeObject(command);
             NetworkStream stream = client.GetStream();
             StreamWriter writer = new StreamWriter(stream);
-            writer.WriteLine(block);
+            writer.WriteLine(c);
             writer.Flush();
         }
 
         public void SendPeer(Peer p)
-        {
+        {   
+            
             var peer = JsonConvert.SerializeObject(p);
+            var command = new Command(CommandId.NodeList, peer);
+            var c = JsonConvert.SerializeObject(command);
+
             NetworkStream stream = client.GetStream();
             StreamWriter writer = new StreamWriter(stream);
-            writer.WriteLine("Client"+peer);
+            writer.WriteLine(c);
             writer.Flush();
         }
 
