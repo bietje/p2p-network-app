@@ -7,12 +7,16 @@ using System.Net.Sockets;
 using P2P_Blockchain.Model;
 using System.Threading;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace P2P_Blockchain
 {
 	class Server
 	{
 		private readonly TcpListener _server;
+
+		public delegate void PeerToPeerEventHandler(object sender, PeerToPeerEventArgs e);
+		public event PeerToPeerEventHandler PeerToPeerEvent;
 
 		public Server()
 		{
@@ -70,6 +74,35 @@ namespace P2P_Blockchain
 					var num =await reader.ReadAsync(bytes, 0, bytes.Length);
 					string received = new string(bytes);
 					Console.WriteLine("Server " + received);
+
+					try {
+						Command command = Newtonsoft.Json.JsonConvert.DeserializeObject<Command>(received);
+
+						switch(command.Cmd) {
+						case Enums.CommandId.Transaction:
+							NetworkController.ForwardTransaction(JsonConvert.DeserializeObject<Transaction>(command.Data));
+							break;
+
+						case Enums.CommandId.Block:
+							NetworkController.ForwardBlock(JsonConvert.DeserializeObject<Block>(command.Data));
+							break;
+
+						case Enums.CommandId.Disconnect:
+							Console.WriteLine("NOT YET IMPLEMENTED!");
+							break;
+
+						case Enums.CommandId.NodeList:
+							var peers = NetworkController.peers;
+							var serialized = JsonConvert.SerializeObject(peers);
+							await writer.WriteAsync(serialized);
+							break;
+						}
+					} catch(Exception e) {
+						Console.WriteLine("Oepsie, iets met JSON.. Of iets totaal anders..");
+						Console.WriteLine(e.Message);
+						Console.WriteLine(e.StackTrace);
+					}
+
 				}
 			}
 		}
