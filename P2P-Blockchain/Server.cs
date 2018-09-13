@@ -92,11 +92,13 @@ namespace P2P_Blockchain
                                     break;
 
                                 case Enums.CommandId.NodeList:
-                                    var peer = JsonConvert.DeserializeObject<Peer>(command.Data);
-                                    var peers = NetworkController.peers;
-                                    var serialized = JsonConvert.SerializeObject(peers);
-                                    NetworkController.peers.Add(peer);
-                                    await writer.WriteLineAsync(serialized);
+                                    var serialized = JsonConvert.SerializeObject(NetworkController.peers);
+                                    writer.WriteLine(serialized);
+                                    var peers = JsonConvert.DeserializeObject<SortedSet<Peer>>(command.Data);
+
+									foreach(var p in peers) {
+										NetworkController.peers.Add(p);
+									}
                                     break;
                             }
                         }
