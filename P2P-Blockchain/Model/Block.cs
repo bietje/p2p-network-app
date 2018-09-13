@@ -23,5 +23,33 @@ namespace P2P_Blockchain.Model
         public string hash { get; set; }
         public string previous { get; set; }
         public string Username { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            var item = obj as Block;
+
+            if (item == null)
+            {
+                return false;
+            }
+
+            return (this.id.Equals(item.id) &&
+                    this.nonce.Equals(item.nonce) &&
+                    this.data.Equals(item.data) &&
+                    this.Username.Equals(item.Username) &&
+                    this.hash.Equals(item.hash) &&
+                    this.previous.Equals(item.previous) &&
+                    this.Username.Equals(item.Username));
+        }
+
+        public override int GetHashCode()
+        {
+            return id.GetHashCode()+
+                   nonce.GetHashCode()+
+                   data.GetHashCode() + 
+                   hash.GetHashCode() + 
+                   previous.GetHashCode() + 
+                   Username.GetHashCode();
+        }
     }
 }
