@@ -20,9 +20,12 @@ namespace P2P_Blockchain.Model
             {
                 this.Name = Name;
                 this.IPadress = IPadress;
-                client = new TcpClient();
-                client.Connect(IPadress, NetworkController.Port);
-                Console.WriteLine($"Client Connected to {Name} on {IPadress}");
+                if (IPadress != NetworkController.SelfIp)
+                {
+                    client = new TcpClient();
+                    client.Connect(IPadress, NetworkController.Port);
+                    Console.WriteLine($"Client Connected to {Name} on {IPadress}");
+                }
             }
             catch (Exception)
             {
@@ -52,7 +55,7 @@ namespace P2P_Blockchain.Model
             writer.Flush();
         }
 
-        public void SendPeer(Peer p)
+        public SortedSet<Peer> SendPeer(Peer p)
         {
 
             string peer = JsonConvert.SerializeObject(p);
@@ -69,17 +72,12 @@ namespace P2P_Blockchain.Model
                 writer.Flush();
                 string str = reader.ReadLine();
 
-                var peers = JsonConvert.DeserializeObject<SortedSet<Peer>>(str);
-                foreach (var pe in peers)
-                {
-                    NetworkController.peers.Add(pe);
-                }
-
-
-                NetworkController.ForwardPeer(p);
+                SortedSet<Peer> peers = JsonConvert.DeserializeObject<SortedSet<Peer>>(str);
+                return peers;
             }
-            catch (Exception e)
+            catch (Exception)
             {
+                return new SortedSet<Peer>();
             }
 
         }
@@ -101,14 +99,14 @@ namespace P2P_Blockchain.Model
 
         public override bool Equals(object obj)
         {
-            var item = obj as Peer;
+            Peer item = obj as Peer;
 
             if (item == null)
             {
                 return false;
             }
 
-            return (this.IPadress == item.IPadress);
+            return (IPadress == item.IPadress);
         }
     }
 }
