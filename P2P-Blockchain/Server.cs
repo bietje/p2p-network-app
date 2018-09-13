@@ -94,11 +94,9 @@ namespace P2P_Blockchain
                                 case Enums.CommandId.NodeList:
                                     var serialized = JsonConvert.SerializeObject(NetworkController.peers);
                                     writer.WriteLine(serialized);
-                                    var peers = JsonConvert.DeserializeObject<SortedSet<Peer>>(command.Data);
-
-									foreach(var p in peers) {
-										NetworkController.peers.Add(p);
-									}
+									writer.Flush();
+                                    var peer = JsonConvert.DeserializeObject<Peer>(command.Data);
+									NetworkController.peers.Add(peer);
                                     break;
                             }
                         }
@@ -107,11 +105,14 @@ namespace P2P_Blockchain
                             Console.WriteLine("Oepsie, iets met JSON.. Of iets totaal anders..");
                             Console.WriteLine(e.Message);
                             Console.WriteLine(e.StackTrace);
+							this.client.Close();
+							return;
                         }
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine("DISCONNECTED ");
+						this.client.Close();
                         return;
                         
                     }
