@@ -53,7 +53,7 @@ namespace P2P_Blockchain
                         var to = Console.ReadLine();
                         Console.WriteLine("Please enter the amount");
                         var amount = Decimal.Parse(Console.ReadLine());
-                        NetworkController.AddTransAction(NetworkController.SelfName, to, am);
+                        NetworkController.AddTransAction(NetworkController.SelfName, to, amount);
                         break;
                     case ("3"):
                         Console.WriteLine("Please enter data");
