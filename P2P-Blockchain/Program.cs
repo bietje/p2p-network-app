@@ -83,7 +83,5 @@ namespace P2P_Blockchain
         private static extern bool SetConsoleCtrlHandler(ConsoleEventDelegate callback, bool add);
 
     }
-
-
 }
 
