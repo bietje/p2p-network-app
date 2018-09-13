@@ -1,49 +1,44 @@
-﻿
-using System;
-using System.Linq;
+﻿using P2P_Blockchain.Model;
 using System.Collections.Generic;
-using System.Text;
-using P2P_Blockchain.Model;
 
 namespace P2P_Blockchain
 {
-	public static class NetworkController
+    public static class NetworkController
     {
-		public static SortedSet<Peer> peers = new SortedSet<Peer>();
-		public static  int Port = 1337;
+        public static SortedSet<Peer> peers = new SortedSet<Peer>();
+        public static int Port = 1337;
         public static string SelfName = "";
         public static SortedSet<Block> Blocks { get; set; } = new SortedSet<Block>();
         public static SortedSet<Transaction> Transactions { get; set; } = new SortedSet<Transaction>();
 
         public static void AddPeer(string name, string IPadress)
         {
-            var peer = new Peer(name, IPadress, SelfName);
-            if (peers.Add(peer))
+            Peer peer = new Peer(name, IPadress, SelfName);
+
+            foreach (Peer p in peers)
             {
-                foreach (var p in peers)
-                {
-                    p.SendPeer(peer);   
-                }
+                p.SendPeer(peer);
             }
+
         }
 
         public static void ForwardPeer(Peer peer)
         {
             if (peers.Add(peer))
             {
-                foreach (var p in peers)
+                foreach (Peer p in peers)
                 {
                     p.SendPeer(peer);
                 }
             }
-        }    
+        }
 
         public static void AddBlock(int id, string nonce, string data, string previous)
         {
-            var block = new Block(id, nonce, data, previous);            
+            Block block = new Block(id, nonce, data, previous);
             if (Blocks.Add(block))
             {
-                foreach (var p in peers)
+                foreach (Peer p in peers)
                 {
                     p.SendBlock(block);
                 }
@@ -54,7 +49,7 @@ namespace P2P_Blockchain
         {
             if (Blocks.Add(block))
             {
-                foreach (var p in peers)
+                foreach (Peer p in peers)
                 {
                     p.SendBlock(block);
                 }
@@ -64,10 +59,10 @@ namespace P2P_Blockchain
 
         public static void AddTransAction(string from, string to, decimal amount)
         {
-            var transaction = new Transaction(from, to, amount);
+            Transaction transaction = new Transaction(from, to, amount);
             if (Transactions.Add(transaction))
             {
-                foreach (var p in peers)
+                foreach (Peer p in peers)
                 {
                     p.SendTransaction(transaction);
                 }
@@ -78,7 +73,7 @@ namespace P2P_Blockchain
         {
             if (Transactions.Add(transaction))
             {
-                foreach (var p in peers)
+                foreach (Peer p in peers)
                 {
                     p.SendTransaction(transaction);
                 }
@@ -86,13 +81,13 @@ namespace P2P_Blockchain
         }
 
         public static void RemovePeer(string name)
-        {            
+        {
 
         }
 
         public static void Close()
         {
-            foreach (var p in peers)
+            foreach (Peer p in peers)
             {
                 p.SendPeer(p);
             }
