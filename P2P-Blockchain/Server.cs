@@ -11,12 +11,12 @@ using Newtonsoft.Json;
 
 namespace P2P_Blockchain
 {
-	class Server
+	public class Server
 	{
 		private readonly TcpListener _server;
 
 		public delegate void PeerToPeerEventHandler(object sender, PeerToPeerEventArgs e);
-		public event PeerToPeerEventHandler PeerToPeerEvent;
+		//public event PeerToPeerEventHandler PeerToPeerEvent;
 
 		public Server()
 		{
@@ -92,8 +92,10 @@ namespace P2P_Blockchain
 							break;
 
 						case Enums.CommandId.NodeList:
+							var peer = JsonConvert.DeserializeObject<Peer>(command.Data);		
 							var peers = NetworkController.peers;
 							var serialized = JsonConvert.SerializeObject(peers);
+							NetworkController.peers.Add(peer);
 							await writer.WriteAsync(serialized);
 							break;
 						}
