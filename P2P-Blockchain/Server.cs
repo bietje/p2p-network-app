@@ -67,45 +67,61 @@ namespace P2P_Blockchain
 
 
                 while (true) {
-					reader = new StreamReader(this.client.GetStream(), Encoding.ASCII);
-					writer = new StreamWriter(this.client.GetStream(), Encoding.ASCII);
+                    try
+                    {
 
-					char[] bytes = new char[2048];
-					var num =await reader.ReadAsync(bytes, 0, bytes.Length);
-					string received = new string(bytes);
-					Console.WriteLine("Server " + received);
 
-					try {
-						Command command = Newtonsoft.Json.JsonConvert.DeserializeObject<Command>(received);
+                        reader = new StreamReader(this.client.GetStream(), Encoding.ASCII);
+                        writer = new StreamWriter(this.client.GetStream(), Encoding.ASCII);
 
-						switch(command.Cmd) {
-						case Enums.CommandId.Transaction:
-							NetworkController.ForwardTransaction(JsonConvert.DeserializeObject<Transaction>(command.Data));
-							break;
+                        char[] bytes = new char[2048];
+                        var num = await reader.ReadAsync(bytes, 0, bytes.Length);
+                        string received = new string(bytes);
+                        Console.WriteLine("Server " + received);
 
-						case Enums.CommandId.Block:
-							NetworkController.ForwardBlock(JsonConvert.DeserializeObject<Block>(command.Data));
-							break;
+                        try
+                        {
+                            Command command = Newtonsoft.Json.JsonConvert.DeserializeObject<Command>(received);
 
-						case Enums.CommandId.Disconnect:
-							Console.WriteLine("NOT YET IMPLEMENTED!");
-							break;
+                            switch (command.Cmd)
+                            {
+                                case Enums.CommandId.Transaction:
+                                    NetworkController.ForwardTransaction(
+                                        JsonConvert.DeserializeObject<Transaction>(command.Data));
+                                    break;
 
-						case Enums.CommandId.NodeList:
-							var peer = JsonConvert.DeserializeObject<Peer>(command.Data);		
-							var peers = NetworkController.peers;
-							var serialized = JsonConvert.SerializeObject(peers);
-							NetworkController.peers.Add(peer);
-							await writer.WriteAsync(serialized);
-							break;
-						}
-					} catch(Exception e) {
-						Console.WriteLine("Oepsie, iets met JSON.. Of iets totaal anders..");
-						Console.WriteLine(e.Message);
-						Console.WriteLine(e.StackTrace);
-					}
+                                case Enums.CommandId.Block:
+                                    NetworkController.ForwardBlock(JsonConvert.DeserializeObject<Block>(command.Data));
+                                    break;
 
-				}
+                                case Enums.CommandId.Disconnect:
+                                    Console.WriteLine("NOT YET IMPLEMENTED!");
+                                    break;
+
+                                case Enums.CommandId.NodeList:
+                                    var peer = JsonConvert.DeserializeObject<Peer>(command.Data);
+                                    var peers = NetworkController.peers;
+                                    var serialized = JsonConvert.SerializeObject(peers);
+                                    NetworkController.peers.Add(peer);
+                                    await writer.WriteAsync(serialized);
+                                    break;
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Oepsie, iets met JSON.. Of iets totaal anders..");
+                            Console.WriteLine(e.Message);
+                            Console.WriteLine(e.StackTrace);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("DISCONNECTED ");
+                        return;
+                        
+                    }
+
+                }
 			}
 		}
 	}
