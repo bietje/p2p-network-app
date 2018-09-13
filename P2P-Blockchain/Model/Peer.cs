@@ -58,6 +58,23 @@ namespace P2P_Blockchain.Model
             writer.Flush();
         }
 
+        public void SendResponse(object obj)
+        {
+            var block = obj as Block;
+            var transaction = obj as Transaction;
+            if (block == null && transaction == null)
+            {
+                return;
+            }
+            var data = JsonConvert.SerializeObject(obj);
+            var command = new Command(CommandId.Response, data);
+            var c = JsonConvert.SerializeObject(command);
+            NetworkStream stream = client.GetStream();
+            StreamWriter writer = new StreamWriter(stream);
+            writer.WriteLine(c);
+            writer.Flush();
+        }
+
         public void SendPeer(Peer p)
         {   
             

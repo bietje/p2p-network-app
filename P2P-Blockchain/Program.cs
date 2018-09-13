@@ -58,7 +58,7 @@ namespace P2P_Blockchain
                     case ("3"):
                         Console.WriteLine("Please enter data");
                         var data = Console.ReadLine();
-                        NetworkController.AddBlock(NetworkController.Blocks.Count, "05050505", data, NetworkController.Blocks.Last().hash);
+                        NetworkController.AddBlock(NetworkController.Blocks.Count, "05050505", data, "0000");// NetworkController.Blocks.Last().hash);
                         break;
                     default:
                         Console.WriteLine("Invalid input detected");

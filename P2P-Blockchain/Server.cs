@@ -92,8 +92,12 @@ namespace P2P_Blockchain
 
                                 case Enums.CommandId.Block:
                                     Block b = JsonConvert.DeserializeObject<Block>(command.Data);
+                                    Console.WriteLine(b);
                                     NetworkController.ForwardBlock(b);
-                                    BlockHandler.SaveBlock(b);
+                                    break;
+
+                                case Enums.CommandId.Response:
+                                    Console.WriteLine("PEER ACCEPTED: " + JsonConvert.DeserializeObject<Block>(command.Data));
                                     break;
 
                                 case Enums.CommandId.Disconnect:

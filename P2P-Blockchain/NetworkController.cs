@@ -61,6 +61,14 @@ namespace P2P_Blockchain
             }
         }
 
+        public static void SendResponse(object obj)
+        {
+            foreach (var p in peers)
+            {
+                p.SendResponse(obj);
+            }
+        }
+
 
         public static void AddTransAction(string from, string to, decimal amount)
         {
