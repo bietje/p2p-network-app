@@ -64,19 +64,12 @@ namespace P2P_Blockchain
 				}
 
 			    var addres = ((IPEndPoint) this.client.Client.RemoteEndPoint).Address.ToString();
-
+				reader = new StreamReader(this.client.GetStream(), Encoding.ASCII);
+				writer = new StreamWriter(this.client.GetStream(), Encoding.ASCII);
 
                 while (true) {
-                    try
-                    {
-
-
-                        reader = new StreamReader(this.client.GetStream(), Encoding.ASCII);
-                        writer = new StreamWriter(this.client.GetStream(), Encoding.ASCII);
-
-                        char[] bytes = new char[2048];
-                        var num = await reader.ReadAsync(bytes, 0, bytes.Length);
-                        string received = new string(bytes);
+                    try {
+						var received = await reader.ReadLineAsync();
                         Console.WriteLine("Server " + received);
 
                         try
@@ -103,7 +96,7 @@ namespace P2P_Blockchain
                                     var peers = NetworkController.peers;
                                     var serialized = JsonConvert.SerializeObject(peers);
                                     NetworkController.peers.Add(peer);
-                                    await writer.WriteAsync(serialized);
+                                    await writer.WriteLineAsync(serialized);
                                     break;
                             }
                         }

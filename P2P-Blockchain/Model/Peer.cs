@@ -64,25 +64,23 @@ namespace P2P_Blockchain.Model
             var peer = JsonConvert.SerializeObject(p);
             var command = new Command(CommandId.NodeList, peer);
             var c = JsonConvert.SerializeObject(command);
-            try
-            {
+
+            try {
                 NetworkStream stream = client.GetStream();
                 StreamWriter writer = new StreamWriter(stream);
+				StreamReader reader = new StreamReader(stream);
+
                 writer.WriteLine(c);
                 writer.Flush();
-                byte[] data = new byte[2048];
-                int numBytesRead = stream.Read(data, 0, data.Length);
-                if (numBytesRead > 0)
-                {
-                    string str = Encoding.ASCII.GetString(data, 0, numBytesRead);
-                    var peers = JsonConvert.DeserializeObject<SortedSet<Peer>>(str);
-                    foreach (var pe in peers)
-                    {
-                        NetworkController.peers.Add(pe);
-                    }
+				var str = reader.ReadLine();
 
-                    NetworkController.ForwardPeer(p);
-                }
+				var peers = JsonConvert.DeserializeObject<SortedSet<Peer>>(str);
+				foreach (var pe in peers)
+				{
+					NetworkController.peers.Add(pe);
+				}
+
+				NetworkController.ForwardPeer(p);
             }
             catch (Exception e)
             {
