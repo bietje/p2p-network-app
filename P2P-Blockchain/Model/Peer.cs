@@ -3,6 +3,7 @@ using P2P_Blockchain.Enums;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 
 namespace P2P_Blockchain.Model
@@ -20,7 +21,7 @@ namespace P2P_Blockchain.Model
             {
                 this.Name = Name;
                 this.IPadress = IPadress;
-                if (IPadress != NetworkController.SelfIp)
+                if (IPadress != NetworkController.SelfIp && NetworkController.peers.SingleOrDefault(x => x.IPadress == IPadress) == null)
                 {
                     client = new TcpClient();
                     client.Connect(IPadress, NetworkController.Port);
