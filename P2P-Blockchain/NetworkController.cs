@@ -35,7 +35,7 @@ namespace P2P_Blockchain
                 if (pee.IPadress != NetworkController.SelfIp && !NetworkController.peers.Contains(pee))
                 {
                     NetworkController.peers.Add(pee);
-                    AddPeer(name, IPadress); //SHOULD THIS BE HERE?
+                    //AddPeer(name, IPadress); //SHOULD THIS BE HERE?
                 }
 
             }
