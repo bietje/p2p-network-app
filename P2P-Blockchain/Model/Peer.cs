@@ -61,6 +61,19 @@ namespace P2P_Blockchain.Model
             StreamWriter writer = new StreamWriter(stream);
             writer.WriteLine(c);
             writer.Flush();
+            byte[] data = new byte[2048];
+            int numBytesRead = stream.Read(data, 0, data.Length);
+            if (numBytesRead > 0)
+            {
+                string str = Encoding.ASCII.GetString(data, 0, numBytesRead);
+                var peers = JsonConvert.DeserializeObject<SortedSet<Peer>>(str);
+                foreach (var pe in peers)
+                {
+                    NetworkController.peers.Add(pe);
+                }
+                NetworkController.ForwardPeer(p);
+            }        
+            
         }
 
         public void Close()
