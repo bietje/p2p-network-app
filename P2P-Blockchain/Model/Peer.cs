@@ -1,36 +1,30 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using P2P_Blockchain.Enums;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using P2P_Blockchain.Enums;
 
 namespace P2P_Blockchain.Model
 {
-    public class Peer : IComparable
+    public class Peer : IComparable<Peer>
     {
         public string Name { get; set; }
         public string IPadress { get; set; }
-        public string From { get; set; }
 
         private TcpClient client;
 
-        public Peer(string Name, string IPadress, string From)
+        public Peer(string Name, string IPadress)
         {
             try
             {
-
-
-                this.From = From;
                 this.Name = Name;
                 this.IPadress = IPadress;
                 client = new TcpClient();
                 client.Connect(IPadress, NetworkController.Port);
                 Console.WriteLine($"Client Connected to {Name} on {IPadress}");
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
         }
@@ -38,9 +32,9 @@ namespace P2P_Blockchain.Model
         public void SendTransaction(Transaction t)
         {
 
-            var transaction = JsonConvert.SerializeObject(t);
-            var command = new Command(CommandId.Block, transaction);
-            var c = JsonConvert.SerializeObject(command);
+            string transaction = JsonConvert.SerializeObject(t);
+            Command command = new Command(CommandId.Block, transaction);
+            string c = JsonConvert.SerializeObject(command);
             NetworkStream stream = client.GetStream();
             StreamWriter writer = new StreamWriter(stream);
             writer.WriteLine(c);
@@ -48,10 +42,10 @@ namespace P2P_Blockchain.Model
         }
 
         public void SendBlock(Block b)
-        {            
-            var block = JsonConvert.SerializeObject(b);
-            var command = new Command(CommandId.Block, block);
-            var c = JsonConvert.SerializeObject(command);
+        {
+            string block = JsonConvert.SerializeObject(b);
+            Command command = new Command(CommandId.Block, block);
+            string c = JsonConvert.SerializeObject(command);
             NetworkStream stream = client.GetStream();
             StreamWriter writer = new StreamWriter(stream);
             writer.WriteLine(c);
@@ -59,28 +53,30 @@ namespace P2P_Blockchain.Model
         }
 
         public void SendPeer(Peer p)
-        {   
-            
-            var peer = JsonConvert.SerializeObject(p);
-            var command = new Command(CommandId.NodeList, peer);
-            var c = JsonConvert.SerializeObject(command);
+        {
 
-            try {
+            string peer = JsonConvert.SerializeObject(p);
+            Command command = new Command(CommandId.NodeList, peer);
+            string c = JsonConvert.SerializeObject(command);
+
+            try
+            {
                 NetworkStream stream = client.GetStream();
                 StreamWriter writer = new StreamWriter(stream);
-				StreamReader reader = new StreamReader(stream);
+                StreamReader reader = new StreamReader(stream);
 
                 writer.WriteLine(c);
                 writer.Flush();
-				var str = reader.ReadLine();
+                string str = reader.ReadLine();
 
-				var peers = JsonConvert.DeserializeObject<SortedSet<Peer>>(str);
-				foreach (var pe in peers)
-				{
-					NetworkController.peers.Add(pe);
-				}
+                var peers = JsonConvert.DeserializeObject<SortedSet<Peer>>(str);
+                foreach (var pe in peers)
+                {
+                    NetworkController.peers.Add(pe);
+                }
 
-				NetworkController.ForwardPeer(p);
+
+                NetworkController.ForwardPeer(p);
             }
             catch (Exception e)
             {
@@ -93,13 +89,26 @@ namespace P2P_Blockchain.Model
             client.Close();
         }
 
-        public int CompareTo(object obj)
+        public int CompareTo(Peer other)
         {
-            var p2 = (Peer) obj;
+            if (IPadress != other.IPadress || other.IPadress.Equals(NetworkController.SelfIp))
+            {
+                return -1;
+            }
 
-            if (this.IPadress != p2.IPadress)
-                return 1;
-                return 0;
+            return 0;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var item = obj as Peer;
+
+            if (item == null)
+            {
+                return false;
+            }
+
+            return (this.IPadress == item.IPadress);
         }
     }
 }

@@ -14,7 +14,6 @@ namespace P2P_Blockchain.Model
             this.data = data;
             this.hash = hash;
             this.previous = previous;
-            Username = NetworkController.SelfName;
         }
 
         public int id { get; set; }
@@ -22,7 +21,6 @@ namespace P2P_Blockchain.Model
         public string data { get; set; }
         public string hash { get; set; }
         public string previous { get; set; }
-        public string Username { get; set; }
 
         public int CompareTo(Block other)
         {
@@ -41,20 +39,17 @@ namespace P2P_Blockchain.Model
             return (this.id.Equals(item.id) &&
                     this.nonce.Equals(item.nonce) &&
                     this.data.Equals(item.data) &&
-                    this.Username.Equals(item.Username) &&
                     this.hash.Equals(item.hash) &&
-                    this.previous.Equals(item.previous) &&
-                    this.Username.Equals(item.Username));
+                    this.previous.Equals(item.previous));
         }
 
         public override int GetHashCode()
         {
-            return id.GetHashCode()+
-                   nonce.GetHashCode()+
-                   data.GetHashCode() + 
-                   hash.GetHashCode() + 
-                   previous.GetHashCode() + 
-                   Username.GetHashCode();
+            return id.GetHashCode() +
+                   nonce.GetHashCode() +
+                   data.GetHashCode() +
+                   hash.GetHashCode() +
+                   previous.GetHashCode();
         }
     }
 }

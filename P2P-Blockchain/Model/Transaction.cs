@@ -9,16 +9,14 @@ namespace P2P_Blockchain.Model
     {
         public Transaction(string from, string to, decimal amount)
         {
-            From = from;
             To = to;
             Amount = amount;
-            Username = NetworkController.SelfName;
+
         }
 
         public string From { get; set; }
         public string To { get; set; }
         public decimal Amount { get; set; }
-        public string Username { get; set; }
 
         public int CompareTo(Transaction other)
         {
@@ -36,16 +34,14 @@ namespace P2P_Blockchain.Model
 
             return (this.From.Equals(item.From) &&
                     this.To.Equals(item.To) &&
-                    this.Amount.Equals(item.Amount) &&
-                    this.Username.Equals(item.Username));
+                    this.Amount.Equals(item.Amount));
         }
 
         public override int GetHashCode()
         {
             return From.GetHashCode() +
                    To.GetHashCode() +
-                   Amount.GetHashCode() +
-                   Username.GetHashCode();
+                   Amount.GetHashCode();
         }
     }
 }
