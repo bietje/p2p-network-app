@@ -91,7 +91,9 @@ namespace P2P_Blockchain
                                     break;
 
                                 case Enums.CommandId.Block:
-                                    NetworkController.ForwardBlock(JsonConvert.DeserializeObject<Block>(command.Data));
+                                    Block b = JsonConvert.DeserializeObject<Block>(command.Data);
+                                    NetworkController.ForwardBlock(b);
+                                    BlockHandler.SaveBlock(b);
                                     break;
 
                                 case Enums.CommandId.Disconnect:
