@@ -55,7 +55,7 @@ namespace P2P_Blockchain.Model
             writer.Flush();
         }
 
-        public void SendPeer(Peer p)
+        public SortedSet<Peer> SendPeer(Peer p)
         {
 
             string peer = JsonConvert.SerializeObject(p);
@@ -73,19 +73,11 @@ namespace P2P_Blockchain.Model
                 string str = reader.ReadLine();
 
                 SortedSet<Peer> peers = JsonConvert.DeserializeObject<SortedSet<Peer>>(str);
-                foreach (Peer pe in peers)
-                {
-                    if (pe.IPadress != NetworkController.SelfIp)
-                    {
-                        NetworkController.peers.Add(pe);
-                    }
-                }
-
-
-                NetworkController.ForwardPeer(p);
+                return peers;
             }
             catch (Exception)
             {
+                return new SortedSet<Peer>();
             }
 
         }

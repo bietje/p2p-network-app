@@ -14,32 +14,46 @@ namespace P2P_Blockchain
 
         public static void AddPeer(string name, string IPadress)
         {
-
-
-
             Peer peer = new Peer(name, IPadress);
 
+            SortedSet<Peer> tempPeer = NetworkController.peers;
             foreach (Peer p in peers)
             {
-                p.SendPeer(peer);
-            }
-
-
-        }
-
-        public static void ForwardPeer(Peer peer)
-        {
-            if (peer.IPadress != SelfIp)
-            {
-                if (peers.Add(peer))
+                SortedSet<Peer> temptemp = p.SendPeer(peer);
+                foreach (Peer pe in temptemp)
                 {
-                    foreach (Peer p in peers)
+                    if (pe.IPadress != NetworkController.SelfIp)
                     {
-                        p.SendPeer(peer);
+                        tempPeer.Add(pe);
                     }
+
                 }
             }
+
+            if (!tempPeer.Equals(NetworkController.peers))
+            {
+                foreach (Peer pee in tempPeer)
+                {
+                    if (pee.IPadress != NetworkController.SelfIp)
+                    {
+                        NetworkController.peers.Add(pee);
+                    }
+
+                }
+                AddPeer(name, IPadress);
+            }
         }
+
+        //public static void ForwardPeer(Peer peer)
+        //{
+        //    if (peer.IPadress != SelfIp)
+        //    {
+        //        if (peers.Add(peer))
+        //        {
+
+        //        }
+        //    }
+        //}
 
         public static void AddBlock(int id, string nonce, string data, string previous)
         {
