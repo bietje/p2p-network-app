@@ -5,7 +5,7 @@ using System.Text;
 namespace P2P_Blockchain.Model
 {
     [Serializable]
-    public class Transaction
+    public class Transaction : IComparable<Transaction>
     {
         public Transaction(string from, string to, decimal amount)
         {
@@ -19,6 +19,11 @@ namespace P2P_Blockchain.Model
         public string To { get; set; }
         public decimal Amount { get; set; }
         public string Username { get; set; }
+
+        public int CompareTo(Transaction other)
+        {
+            return this.GetHashCode().CompareTo(other.GetHashCode());
+        }
 
         public override bool Equals(object obj)
         {

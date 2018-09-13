@@ -5,7 +5,7 @@ using System.Text;
 namespace P2P_Blockchain.Model
 {
     [Serializable]
-    public class Block
+    public class Block : IComparable<Block>
     {
         public Block(int id, string nonce, string data,  string previous,  string hash = "0000")
         {
@@ -23,6 +23,11 @@ namespace P2P_Blockchain.Model
         public string hash { get; set; }
         public string previous { get; set; }
         public string Username { get; set; }
+
+        public int CompareTo(Block other)
+        {
+            return this.id.CompareTo(other.id);
+        }
 
         public override bool Equals(object obj)
         {
