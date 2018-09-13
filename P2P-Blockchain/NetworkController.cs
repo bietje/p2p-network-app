@@ -14,23 +14,23 @@ namespace P2P_Blockchain
 
         public static void AddPeer(string name, string IPadress)
         {
-            if (IPadress != SelfIp)
+
+
+
+            Peer peer = new Peer(name, IPadress);
+
+            foreach (Peer p in peers)
             {
-
-
-                Peer peer = new Peer(name, IPadress);
-
-                foreach (Peer p in peers)
-                {
-                    p.SendPeer(peer);
-                }
+                p.SendPeer(peer);
             }
+
 
         }
 
         public static void ForwardPeer(Peer peer)
         {
-            if (peer.IPadress != SelfIp){
+            if (peer.IPadress != SelfIp)
+            {
                 if (peers.Add(peer))
                 {
                     foreach (Peer p in peers)
@@ -84,7 +84,10 @@ namespace P2P_Blockchain
                 foreach (Peer p in peers)
                 {
                     if (p.IPadress == NetworkController.SelfIp)
+                    {
                         continue;
+                    }
+
                     p.SendTransaction(transaction);
                 }
             }
