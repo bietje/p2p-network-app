@@ -19,11 +19,11 @@ namespace P2P_Blockchain
             s.Start();
             handler = new ConsoleEventDelegate(ConsoleEventCallback);
 
-            Console.Write("Please enter the IP of a node you know");
+            Console.WriteLine("Please enter the IP of a node you know");
             var ip = Console.ReadLine();
-            Console.Write("Please enter the Name of a node you know");
+            Console.WriteLine("Please enter the Name of a node you know");
             var name = Console.ReadLine();
-            Console.Write("Please enter your name");
+            Console.WriteLine("Please enter your name");
             var self = Console.ReadLine();
             SetConsoleCtrlHandler(handler, true);
             var peer = new Peer(name, ip, self);
