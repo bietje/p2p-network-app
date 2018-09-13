@@ -19,12 +19,20 @@ namespace P2P_Blockchain.Model
 
         public Peer(string Name, string IPadress, string From)
         {
-            this.From = From;
-            this.Name = Name;
-            this.IPadress = IPadress;
-            client = new TcpClient();
-            client.Connect(IPadress, NetworkController.Port);
-            Console.WriteLine($"Client Connected to {Name} on {IPadress}");
+            try
+            {
+
+
+                this.From = From;
+                this.Name = Name;
+                this.IPadress = IPadress;
+                client = new TcpClient();
+                client.Connect(IPadress, NetworkController.Port);
+                Console.WriteLine($"Client Connected to {Name} on {IPadress}");
+            }
+            catch (Exception e)
+            {
+            }
         }
 
         public void SendTransaction(Transaction t)
@@ -56,24 +64,30 @@ namespace P2P_Blockchain.Model
             var peer = JsonConvert.SerializeObject(p);
             var command = new Command(CommandId.NodeList, peer);
             var c = JsonConvert.SerializeObject(command);
-
-            NetworkStream stream = client.GetStream();
-            StreamWriter writer = new StreamWriter(stream);
-            writer.WriteLine(c);
-            writer.Flush();
-            byte[] data = new byte[2048];
-            int numBytesRead = stream.Read(data, 0, data.Length);
-            if (numBytesRead > 0)
+            try
             {
-                string str = Encoding.ASCII.GetString(data, 0, numBytesRead);
-                var peers = JsonConvert.DeserializeObject<SortedSet<Peer>>(str);
-                foreach (var pe in peers)
+                NetworkStream stream = client.GetStream();
+                StreamWriter writer = new StreamWriter(stream);
+                writer.WriteLine(c);
+                writer.Flush();
+                byte[] data = new byte[2048];
+                int numBytesRead = stream.Read(data, 0, data.Length);
+                if (numBytesRead > 0)
                 {
-                    NetworkController.peers.Add(pe);
+                    string str = Encoding.ASCII.GetString(data, 0, numBytesRead);
+                    var peers = JsonConvert.DeserializeObject<SortedSet<Peer>>(str);
+                    foreach (var pe in peers)
+                    {
+                        NetworkController.peers.Add(pe);
+                    }
+
+                    NetworkController.ForwardPeer(p);
                 }
-                NetworkController.ForwardPeer(p);
-            }        
-            
+            }
+            catch (Exception e)
+            {
+            }
+
         }
 
         public void Close()
