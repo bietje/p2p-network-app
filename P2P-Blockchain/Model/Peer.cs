@@ -9,7 +9,7 @@ using P2P_Blockchain.Enums;
 
 namespace P2P_Blockchain.Model
 {
-    public class Peer
+    public class Peer : IComparable
     {
         public string Name { get; set; }
         public string IPadress { get; set; }
@@ -79,6 +79,15 @@ namespace P2P_Blockchain.Model
         public void Close()
         {
             client.Close();
+        }
+
+        public int CompareTo(object obj)
+        {
+            var p2 = (Peer) obj;
+
+            if (this.IPadress != p2.IPadress)
+                return 1;
+                return 0;
         }
     }
 }
