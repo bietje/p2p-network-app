@@ -47,7 +47,6 @@ namespace P2P_Blockchain
                 {
                     p.SendBlock(block);
                 }
-                SendResponse(block);
             }
         }
 
@@ -59,6 +58,7 @@ namespace P2P_Blockchain
                 {
                     p.SendBlock(block);
                 }
+                SendResponse(block);
             }
         }
 

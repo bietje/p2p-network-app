@@ -66,7 +66,15 @@ namespace P2P_Blockchain.Model
             {
                 return;
             }
-            var data = JsonConvert.SerializeObject(obj);
+            string data = "";
+            if (block != null)
+            {
+                data = JsonConvert.SerializeObject(block);
+            }
+            else if (transaction != null)
+            {
+                data = JsonConvert.SerializeObject(transaction);
+            }
             var command = new Command(CommandId.Response, data);
             var c = JsonConvert.SerializeObject(command);
             NetworkStream stream = client.GetStream();
