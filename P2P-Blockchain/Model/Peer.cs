@@ -20,9 +20,12 @@ namespace P2P_Blockchain.Model
             {
                 this.Name = Name;
                 this.IPadress = IPadress;
-                client = new TcpClient();
-                client.Connect(IPadress, NetworkController.Port);
-                Console.WriteLine($"Client Connected to {Name} on {IPadress}");
+                if (IPadress != NetworkController.SelfIp)
+                {
+                    client = new TcpClient();
+                    client.Connect(IPadress, NetworkController.Port);
+                    Console.WriteLine($"Client Connected to {Name} on {IPadress}");
+                }
             }
             catch (Exception)
             {
@@ -69,16 +72,19 @@ namespace P2P_Blockchain.Model
                 writer.Flush();
                 string str = reader.ReadLine();
 
-                var peers = JsonConvert.DeserializeObject<SortedSet<Peer>>(str);
-                foreach (var pe in peers)
+                SortedSet<Peer> peers = JsonConvert.DeserializeObject<SortedSet<Peer>>(str);
+                foreach (Peer pe in peers)
                 {
-                    NetworkController.peers.Add(pe);
+                    if (pe.IPadress != NetworkController.SelfIp)
+                    {
+                        NetworkController.peers.Add(pe);
+                    }
                 }
 
 
                 NetworkController.ForwardPeer(p);
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
 
@@ -101,14 +107,14 @@ namespace P2P_Blockchain.Model
 
         public override bool Equals(object obj)
         {
-            var item = obj as Peer;
+            Peer item = obj as Peer;
 
             if (item == null)
             {
                 return false;
             }
 
-            return (this.IPadress == item.IPadress);
+            return (IPadress == item.IPadress);
         }
     }
 }
