@@ -1,124 +1,163 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿using Newtonsoft.Json;
+using P2P_Blockchain.Model;
+using System;
+using System.ComponentModel.Design;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using P2P_Blockchain.Model;
+using System.Text;
 using System.Threading;
-using System.IO;
-using Newtonsoft.Json;
+using P2P_Blockchain.Enums;
 
 namespace P2P_Blockchain
 {
-	public class Server
-	{
-		private readonly TcpListener _server;
+    public class Server
+    {
+        private readonly TcpListener _server;
 
-		public delegate void PeerToPeerEventHandler(object sender, PeerToPeerEventArgs e);
-		//public event PeerToPeerEventHandler PeerToPeerEvent;
+        public delegate void PeerToPeerEventHandler(object sender, PeerToPeerEventArgs e);
+        //public event PeerToPeerEventHandler PeerToPeerEvent;
 
-		public Server()
-		{
-			this._server = new TcpListener(IPAddress.Any, NetworkController.Port);
+        public Server()
+        {
+            _server = new TcpListener(IPAddress.Any, NetworkController.Port);
 
-			try {
-				this._server.Start();
-			} catch(Exception e) {
-				Console.WriteLine("Shit just went south.. HALP!");
-				Console.WriteLine(e.Message);
-			}
-		}
+            try
+            {
+                _server.Start();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Michel FUCKUP Counter +1");
+                Console.WriteLine("Shit just went south.. HALP!");
+                Console.WriteLine(e.Message);
+            }
+        }
 
-		public void Start()
-		{
-			var t = new Thread(async () => {
-				while(true) {
-					var sock = await _server.AcceptTcpClientAsync().ConfigureAwait(false);
+        public void Start()
+        {
+            Thread t = new Thread(async () =>
+            {
+                while (true)
+                {
+                    TcpClient sock = await _server.AcceptTcpClientAsync().ConfigureAwait(false);
 
-					var handler = new ClientHandler();
-					Thread tp = new Thread(new ParameterizedThreadStart(handler.Run));
-					tp.Start(sock);
-				}
-			});
+                    ClientHandler handler = new ClientHandler();
+                    Thread tp = new Thread(new ParameterizedThreadStart(handler.Run));
+                    tp.Start(sock);
+                }
+            });
 
-			t.Start();
-		}
+            t.Start();
+        }
 
-		public class ClientHandler
-		{
-			private TcpClient client;
+        public class ClientHandler
+        {
+            private TcpClient client;
+            private bool encrypted = false;
+            private string publicRSAKey = "";
+            private string superduperprivateAESkey="";
+            public ClientHandler()
+            {
+            }
 
-			public ClientHandler()
-			{
-			}
+            public async void Run(object client)
+            {
+                StreamReader reader;
+                StreamWriter writer;
 
-			public async void Run(object client)
-			{
-				StreamReader reader;
-				StreamWriter writer;
+                this.client = client as TcpClient;
+                if (this.client == null)
+                {
+                    Console.WriteLine("Invalid client...");
+                    Console.WriteLine("Michel FUCKUP Counter +1");
+                }
 
-				this.client = client as TcpClient;
-				if(this.client == null) {
-					Console.WriteLine("Invalid client...");
-				}
+                string addres = ((IPEndPoint)this.client.Client.RemoteEndPoint).Address.ToString();
+                reader = new StreamReader(this.client.GetStream(), Encoding.ASCII);
+                writer = new StreamWriter(this.client.GetStream(), Encoding.ASCII);
 
-			    var addres = ((IPEndPoint) this.client.Client.RemoteEndPoint).Address.ToString();
-				reader = new StreamReader(this.client.GetStream(), Encoding.ASCII);
-				writer = new StreamWriter(this.client.GetStream(), Encoding.ASCII);
-
-                while (true) {
-                    try {
-						var received = await reader.ReadLineAsync();
+                while (true)
+                {
+                    try
+                    {
+                        string received = await reader.ReadLineAsync();
                         Console.WriteLine("Server " + received);
 
                         try
                         {
-                            Command command = Newtonsoft.Json.JsonConvert.DeserializeObject<Command>(received);
-
-                            switch (command.Cmd)
+                            if (!encrypted)
                             {
-                                case Enums.CommandId.Transaction:
-                                    NetworkController.ForwardTransaction(
-                                        JsonConvert.DeserializeObject<Transaction>(command.Data));
-                                    break;
+                                Command command = JsonConvert.DeserializeObject<Command>(received);
+                                if (command.Cmd == CommandId.SendRSA)
+                                {
+                                    publicRSAKey = command.Data;
+                                    superduperprivateAESkey =
+                                        "AWESOMESUPERDUPERDYDUPERSECURESTRINGYTHINGTHATMICHELSHOULDDEFINITELYREPLACE";
 
-                                case Enums.CommandId.Block:
-                                    NetworkController.ForwardBlock(JsonConvert.DeserializeObject<Block>(command.Data));
-                                    break;
+                                    var returnCommand =
+                                        JsonConvert.SerializeObject(new Command(CommandId.SendAES,
+                                            superduperprivateAESkey));
+                                    //ENCRYPT IT
+                                    var encryptedCommand = returnCommand;
 
-                                case Enums.CommandId.Disconnect:
-                                    Console.WriteLine("NOT YET IMPLEMENTED!");
-                                    break;
+                                    writer.WriteLine(encryptedCommand);
+                                    writer.Flush();
 
-                                case Enums.CommandId.NodeList:
-                                    var serialized = JsonConvert.SerializeObject(NetworkController.peers);
-                                    writer.WriteLine(serialized);
-									writer.Flush();
-                                    var peer = JsonConvert.DeserializeObject<Peer>(command.Data);
-									NetworkController.peers.Add(peer);
-                                    break;
+                                    encrypted = true;
+                                }
+                            }
+                            else
+                            {
+                                //TODO ADD SOME ENCRYPTION SHIT
+                                Command command = Newtonsoft.Json.JsonConvert.DeserializeObject<Command>(received);
+
+                                switch (command.Cmd)
+                                {
+                                    case Enums.CommandId.Transaction:
+                                        NetworkController.ForwardTransaction(
+                                            JsonConvert.DeserializeObject<Transaction>(command.Data));
+                                        break;
+
+                                    case Enums.CommandId.Block:
+                                        NetworkController.ForwardBlock(
+                                            JsonConvert.DeserializeObject<Block>(command.Data));
+                                        break;
+
+                                    case Enums.CommandId.Disconnect:
+                                        Console.WriteLine("NOT YET IMPLEMENTED!");
+                                        break;
+
+                                    case Enums.CommandId.NodeList:
+                                        string serialized = JsonConvert.SerializeObject(NetworkController.peers);
+                                        writer.WriteLine(serialized);
+                                        writer.Flush();
+                                        Peer peer = JsonConvert.DeserializeObject<Peer>(command.Data);
+                                        NetworkController.peers.Add(peer);
+                                        break;
+                                }
                             }
                         }
                         catch (Exception e)
                         {
                             Console.WriteLine("Oepsie, iets met JSON.. Of iets totaal anders..");
+                            Console.WriteLine("Michel FUCKUP Counter +1");
                             Console.WriteLine(e.Message);
                             Console.WriteLine(e.StackTrace);
-							this.client.Close();
-							return;
+                            this.client.Close();
+                            return;
                         }
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         Console.WriteLine("DISCONNECTED ");
-						this.client.Close();
+                        this.client.Close();
                         return;
-                        
+
                     }
 
                 }
-			}
-		}
-	}
+            }
+        }
+    }
 }

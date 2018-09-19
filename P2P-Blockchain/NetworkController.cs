@@ -26,21 +26,16 @@ namespace P2P_Blockchain
                     {
                         tempPeer.Add(pe);
                     }
-
                 }
             }
 
-            foreach (Peer pee in tempPeer)
+            foreach (Peer p in tempPeer)
             {
-                if (pee.IPadress != SelfIp && !peers.Contains(pee))
+                if (p.IPadress != SelfIp && !peers.Contains(p))
                 {
-                    peers.Add(pee);
-
+                    peers.Add(p);
                 }
-
             }
-
-
         }
 
         public static void AddBlock(int id, string nonce, string data, string previous)
