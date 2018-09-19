@@ -32,27 +32,16 @@ namespace P2P_Blockchain
 
             foreach (Peer pee in tempPeer)
             {
-                if (pee.IPadress != NetworkController.SelfIp && !NetworkController.peers.Contains(pee))
+                if (pee.IPadress != SelfIp && !peers.Contains(pee))
                 {
-                    NetworkController.peers.Add(pee);
-                    //AddPeer(name, IPadress); //SHOULD THIS BE HERE?
+                    peers.Add(pee);
+
                 }
 
             }
 
 
         }
-
-        //public static void ForwardPeer(Peer peer)
-        //{
-        //    if (peer.IPadress != SelfIp)
-        //    {
-        //        if (peers.Add(peer))
-        //        {
-
-        //        }
-        //    }
-        //}
 
         public static void AddBlock(int id, string nonce, string data, string previous)
         {
@@ -96,26 +85,13 @@ namespace P2P_Blockchain
             {
                 foreach (Peer p in peers)
                 {
-                    if (p.IPadress == NetworkController.SelfIp)
+                    if (p.IPadress == SelfIp)
                     {
                         continue;
                     }
 
                     p.SendTransaction(transaction);
                 }
-            }
-        }
-
-        public static void RemovePeer(string name)
-        {
-
-        }
-
-        public static void Close()
-        {
-            foreach (Peer p in peers)
-            {
-                p.SendPeer(p);
             }
         }
 

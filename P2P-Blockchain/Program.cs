@@ -46,7 +46,6 @@ namespace P2P_Blockchain
                 switch (Console.ReadLine())
                 {
                     case ("1"):
-                        //TODO SEND GET NODE
                         NetworkController.AddPeer(NetworkController.SelfName, GetLocalIPAddress());
                         break;
                     case ("2"):
