@@ -5,13 +5,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using System.Text;
 
 namespace P2P_Blockchain.Model
 {
-    public class Peer : IComparable<Peer>
+    public class Peer : IComparable<Peer>, IDisposable
     {
         public string Name { get; set; }
         public string IPadress { get; set; }
+        private string privateAESKey { get; set; }
+        private StreamWriter writer { get; set; }
+        private StreamReader reader { get; set; }
 
         private TcpClient client;
 
@@ -23,13 +27,33 @@ namespace P2P_Blockchain.Model
                 this.IPadress = IPadress;
                 if (IPadress != NetworkController.SelfIp && NetworkController.peers.SingleOrDefault(x => x.IPadress == IPadress) == null)
                 {
+
                     client = new TcpClient();
                     client.Connect(IPadress, NetworkController.Port);
+                    NetworkStream stream = client.GetStream();
+                    writer = new StreamWriter(stream, Encoding.ASCII);
+                    reader = new StreamReader(stream, Encoding.ASCII);
+
                     Console.WriteLine($"Client Connected to {Name} on {IPadress}");
+                    Command c = new Command(CommandId.SendRSA, "RSAKEYSAREAWESOME"); //TODO GET RSAKEY
+                    Command encrypted = c; //TODO ENCRYPT IT
+                    writer.WriteLine(JsonConvert.SerializeObject(encrypted));
+                    writer.Flush();
+
+                    string encryptedWithRSA = reader.ReadLine();
+
+                    string decryptedAESKey = encryptedWithRSA; //TODO DECRYPT
+
+                    Command command = JsonConvert.DeserializeObject<Command>(decryptedAESKey);
+                    if (command.Cmd == CommandId.SendAES)
+                    {
+                        privateAESKey = command.Data;
+                    }
                 }
             }
             catch (Exception)
             {
+                Console.WriteLine("Sascha FUCKUP Counter +1");
             }
         }
 
@@ -39,8 +63,6 @@ namespace P2P_Blockchain.Model
             string transaction = JsonConvert.SerializeObject(t);
             Command command = new Command(CommandId.Block, transaction);
             string c = JsonConvert.SerializeObject(command);
-            NetworkStream stream = client.GetStream();
-            StreamWriter writer = new StreamWriter(stream);
             writer.WriteLine(c);
             writer.Flush();
         }
@@ -50,8 +72,6 @@ namespace P2P_Blockchain.Model
             string block = JsonConvert.SerializeObject(b);
             Command command = new Command(CommandId.Block, block);
             string c = JsonConvert.SerializeObject(command);
-            NetworkStream stream = client.GetStream();
-            StreamWriter writer = new StreamWriter(stream);
             writer.WriteLine(c);
             writer.Flush();
         }
@@ -65,10 +85,6 @@ namespace P2P_Blockchain.Model
 
             try
             {
-                NetworkStream stream = client.GetStream();
-                StreamWriter writer = new StreamWriter(stream);
-                StreamReader reader = new StreamReader(stream);
-
                 writer.WriteLine(c);
                 writer.Flush();
                 string str = reader.ReadLine();
@@ -108,6 +124,18 @@ namespace P2P_Blockchain.Model
             }
 
             return (IPadress == item.IPadress);
+        }
+
+        public void Dispose()
+        {
+            if (client.Connected)
+            {
+
+
+                writer.Close();
+                reader.Close();
+                client.Close();
+            }
         }
     }
 }
