@@ -26,7 +26,7 @@ namespace P2P_Blockchain
             Console.WriteLine("Please enter your name");
             var self = Console.ReadLine();
             SetConsoleCtrlHandler(handler, true);
-            var peer = new Peer(name, ip);
+            var peer = new TeringClientPeer(name, ip);
             NetworkController.SelfName = self;
             NetworkController.SelfIp = GetLocalIPAddress();
             NetworkController.peers.Add(peer);

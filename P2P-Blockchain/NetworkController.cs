@@ -5,7 +5,7 @@ namespace P2P_Blockchain
 {
     public static class NetworkController
     {
-        public static SortedSet<Peer> peers = new SortedSet<Peer>();
+        public static SortedSet<TeringClientPeer> peers = new SortedSet<TeringClientPeer>();
         public static int Port = 1337;
         public static string SelfName = "";
         public static string SelfIp = "";
@@ -14,13 +14,13 @@ namespace P2P_Blockchain
 
         public static void AddPeer(string name, string IPadress)
         {
-            Peer peer = new Peer(name, IPadress);
+            TeringClientPeer peer = new TeringClientPeer(name, IPadress);
 
-            SortedSet<Peer> tempPeer = new SortedSet<Peer>(NetworkController.peers);
-            foreach (Peer p in peers)
+            SortedSet<TeringClientPeer> tempPeer = new SortedSet<TeringClientPeer>(NetworkController.peers);
+            foreach (TeringClientPeer p in peers)
             {
-                SortedSet<Peer> temptemp = new SortedSet<Peer>(p.SendPeer(peer));
-                foreach (Peer pe in temptemp)
+                SortedSet<TeringClientPeer> temptemp = new SortedSet<TeringClientPeer>(p.SendPeer(peer));
+                foreach (TeringClientPeer pe in temptemp)
                 {
                     if (pe.IPadress != NetworkController.SelfIp)
                     {
@@ -29,7 +29,7 @@ namespace P2P_Blockchain
                 }
             }
 
-            foreach (Peer p in tempPeer)
+            foreach (TeringClientPeer p in tempPeer)
             {
                 if (p.IPadress != SelfIp && !peers.Contains(p))
                 {
@@ -43,7 +43,7 @@ namespace P2P_Blockchain
             Block block = new Block(id, nonce, data, previous);
             if (Blocks.Add(block))
             {
-                foreach (Peer p in peers)
+                foreach (TeringClientPeer p in peers)
                 {
                     p.SendBlock(block);
                 }
@@ -54,7 +54,7 @@ namespace P2P_Blockchain
         {
             if (Blocks.Add(block))
             {
-                foreach (Peer p in peers)
+                foreach (TeringClientPeer p in peers)
                 {
                     p.SendBlock(block);
                 }
@@ -67,7 +67,7 @@ namespace P2P_Blockchain
             Transaction transaction = new Transaction(from, to, amount);
             if (Transactions.Add(transaction))
             {
-                foreach (Peer p in peers)
+                foreach (TeringClientPeer p in peers)
                 {
                     p.SendTransaction(transaction);
                 }
@@ -78,7 +78,7 @@ namespace P2P_Blockchain
         {
             if (Transactions.Add(transaction))
             {
-                foreach (Peer p in peers)
+                foreach (TeringClientPeer p in peers)
                 {
                     if (p.IPadress == SelfIp)
                     {

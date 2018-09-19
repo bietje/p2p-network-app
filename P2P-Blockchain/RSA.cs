@@ -34,7 +34,7 @@ namespace P2P_Blockchain
 			return kp;
 		}
 
-		public static byte[] Encrypt(KeyPair kp, string text)
+		public static string Encrypt(KeyPair kp, string text)
 		{
 			var csp = new CspParameters {ProviderType = 1};
 
@@ -42,7 +42,7 @@ namespace P2P_Blockchain
 			provider.FromXmlString(kp.PublicKey);
 			var bytes = Encoding.ASCII.GetBytes(text);
 
-			return provider.Encrypt(bytes, false);
+			return Encoding.ASCII.GetString(provider.Encrypt(bytes, false));
 		}
 
 		public static string Decrypt(KeyPair kp, string data)

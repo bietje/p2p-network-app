@@ -6,20 +6,22 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using P2P_Blockchain.Model;
 
-namespace P2P_Blockchain.Model
+namespace P2P_Blockchain
 {
-    public class Peer : IComparable<Peer>, IDisposable
+    public class TeringClientPeer : IComparable<TeringClientPeer>, IDisposable
     {
         public string Name { get; set; }
         public string IPadress { get; set; }
         private string privateAESKey { get; set; }
+        private KeyPair privateRSAKey { get; set; }
         private StreamWriter writer { get; set; }
         private StreamReader reader { get; set; }
 
         private TcpClient client;
 
-        public Peer(string Name, string IPadress)
+        public TeringClientPeer(string Name, string IPadress)
         {
             try
             {
@@ -35,14 +37,15 @@ namespace P2P_Blockchain.Model
                     reader = new StreamReader(stream, Encoding.ASCII);
 
                     Console.WriteLine($"Client Connected to {Name} on {IPadress}");
-                    Command c = new Command(CommandId.SendRSA, "RSAKEYSAREAWESOME"); //TODO GET RSAKEY
-                    Command encrypted = c; //TODO ENCRYPT IT
-                    writer.WriteLine(JsonConvert.SerializeObject(encrypted));
+                    var keypair = RSA.GenerateKeyPair();
+
+                    Command c = new Command(CommandId.SendRSA, keypair.PublicKey);                     
+                    writer.WriteLine(JsonConvert.SerializeObject(c));
                     writer.Flush();
 
                     string encryptedWithRSA = reader.ReadLine();
 
-                    string decryptedAESKey = encryptedWithRSA; //TODO DECRYPT
+                    string decryptedAESKey = RSA.Decrypt(privateRSAKey, encryptedWithRSA); //TODO DECRYPT
 
                     Command command = JsonConvert.DeserializeObject<Command>(decryptedAESKey);
                     if (command.Cmd == CommandId.SendAES)
@@ -76,7 +79,7 @@ namespace P2P_Blockchain.Model
             writer.Flush();
         }
 
-        public SortedSet<Peer> SendPeer(Peer p)
+        public SortedSet<TeringClientPeer> SendPeer(TeringClientPeer p)
         {
 
             string peer = JsonConvert.SerializeObject(p);
@@ -89,12 +92,12 @@ namespace P2P_Blockchain.Model
                 writer.Flush();
                 string str = reader.ReadLine();
 
-                SortedSet<Peer> peers = JsonConvert.DeserializeObject<SortedSet<Peer>>(str);
+                SortedSet<TeringClientPeer> peers = JsonConvert.DeserializeObject<SortedSet<TeringClientPeer>>(str);
                 return peers;
             }
             catch (Exception)
             {
-                return new SortedSet<Peer>();
+                return new SortedSet<TeringClientPeer>();
             }
 
         }
@@ -104,7 +107,7 @@ namespace P2P_Blockchain.Model
             client.Close();
         }
 
-        public int CompareTo(Peer other)
+        public int CompareTo(TeringClientPeer other)
         {
             if (IPadress != other.IPadress || other.IPadress.Equals(NetworkController.SelfIp))
             {
@@ -116,7 +119,7 @@ namespace P2P_Blockchain.Model
 
         public override bool Equals(object obj)
         {
-            Peer item = obj as Peer;
+            TeringClientPeer item = obj as TeringClientPeer;
 
             if (item == null)
             {

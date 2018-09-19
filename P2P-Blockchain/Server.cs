@@ -55,7 +55,7 @@ namespace P2P_Blockchain
         {
             private TcpClient client;
             private bool encrypted = false;
-            private string publicRSAKey = "";
+            private KeyPair rasKeyPair;
             private string superduperprivateAESkey="";
             public ClientHandler()
             {
@@ -91,7 +91,8 @@ namespace P2P_Blockchain
                                 Command command = JsonConvert.DeserializeObject<Command>(received);
                                 if (command.Cmd == CommandId.SendRSA)
                                 {
-                                    publicRSAKey = command.Data;
+                                    var pubkey = command.Data;
+                                    rasKeyPair = new KeyPair(){PrivateKey = "", PublicKey = pubkey};
                                     superduperprivateAESkey =
                                         "AWESOMESUPERDUPERDYDUPERSECURESTRINGYTHINGTHATMICHELSHOULDDEFINITELYREPLACE";
 
@@ -99,7 +100,7 @@ namespace P2P_Blockchain
                                         JsonConvert.SerializeObject(new Command(CommandId.SendAES,
                                             superduperprivateAESkey));
                                     //ENCRYPT IT
-                                    var encryptedCommand = returnCommand;
+                                    var encryptedCommand = RSA.Encrypt(rasKeyPair,returnCommand);
 
                                     writer.WriteLine(encryptedCommand);
                                     writer.Flush();
@@ -132,7 +133,7 @@ namespace P2P_Blockchain
                                         string serialized = JsonConvert.SerializeObject(NetworkController.peers);
                                         writer.WriteLine(serialized);
                                         writer.Flush();
-                                        Peer peer = JsonConvert.DeserializeObject<Peer>(command.Data);
+                                        TeringClientPeer peer = JsonConvert.DeserializeObject<TeringClientPeer>(command.Data);
                                         NetworkController.peers.Add(peer);
                                         break;
                                 }
